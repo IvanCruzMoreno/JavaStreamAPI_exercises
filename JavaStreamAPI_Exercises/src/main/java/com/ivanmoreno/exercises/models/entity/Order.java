@@ -1,7 +1,7 @@
 package com.ivanmoreno.exercises.models.entity;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -36,10 +36,10 @@ public class Order {
 	private String status;
 	
 	@Column(name = "order_date")
-	private Date orderDate;
+	private LocalDate orderDate;
 	
 	@Column(name = "delivery_date")
-	private Date deliveryDate;
+	private LocalDate deliveryDate;
 	
 	@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 	@ManyToOne(fetch = FetchType.LAZY)
