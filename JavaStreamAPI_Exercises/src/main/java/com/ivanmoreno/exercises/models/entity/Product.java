@@ -14,12 +14,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.With;
 
 @Data
 @AllArgsConstructor
 @ToString(exclude = {"orders"})
+@EqualsAndHashCode(exclude = {"orders", "price"})
 @Entity
 @Table(name = "product")
 public class Product {
