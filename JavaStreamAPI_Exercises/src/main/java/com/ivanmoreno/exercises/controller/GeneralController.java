@@ -1,18 +1,23 @@
 package com.ivanmoreno.exercises.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
 
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.DoubleSummaryStatistics;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ivanmoreno.exercises.models.entity.Customer;
 import com.ivanmoreno.exercises.models.entity.Order;
 import com.ivanmoreno.exercises.models.entity.Product;
 import com.ivanmoreno.exercises.service.GeneralService;
@@ -132,6 +137,105 @@ public class GeneralController {
 				.sum();
 				
 		return totalSump;
+	}
+	
+	@GetMapping("/e9")
+	public Double exercise9() {
+		//Calculate order average payment place on 15-Mar-2021
+		
+		Double averagePayment = service.findAllOrder()
+				.stream()
+				.filter(order -> order.getOrderDate().equals(LocalDate.of(2021, 3, 15)))
+				.flatMap(order -> order.getProducts().stream())
+				.collect(Collectors.averagingDouble(Product::getPrice));
+				
+		return averagePayment;
+	}
+	
+	@GetMapping("/e10")
+	public DoubleSummaryStatistics exercise10() {
+		//Obtain a collection of statistic figures (i.e. sum, average, max, min, count) for all products of category "Books"
+		
+		DoubleSummaryStatistics statistic = service.findAllProduct()
+				.stream()
+				.filter(product -> product.getCategory().equalsIgnoreCase("books"))
+				.collect(Collectors.summarizingDouble(Product::getPrice));
+		
+		return statistic;
+	}
+	
+	@GetMapping("/e11")
+	public Map<Long, Integer> exercise11() {
+		//Obtain a data map with order id and order's product count 
+		
+		Map<Long, Integer> orders = service.findAllOrder()
+				.stream()
+				.collect(
+						toMap(
+							Order::getId,
+							order -> order.getProducts().size()));
+		
+		return orders;
+	}
+	
+	@GetMapping("/e12")
+	public Map<Customer, List<Order>> exercise12() {
+		//Produce a data map with order records grouped by customer 
+		
+		Map<Customer, List<Order>> ordersByCustomer = service.findAllOrder()
+				.stream()
+				.collect(groupingBy(Order::getCustomer));
+		
+		return ordersByCustomer;
+		
+	}
+	
+	@GetMapping("/e13")
+	public Map<Order, Double> exercise13() {
+		//Produce a data map with order record and product total sum 
+		
+		Map<Order, Double> result = service.findAllOrder()
+				.stream()
+				.collect(
+						toMap(
+							Function.identity(), 
+							order -> order.getProducts()
+							    .stream()
+							    .mapToDouble(Product::getPrice).sum())
+						);
+		
+		return result;
+	}
+	
+	@GetMapping("/e14")
+	public Map<String, List<String>> exercise14() {
+		//Obtain a data map with list of product name by category 
+		
+		Map<String, List<String>> result = service.findAllProduct()
+				.stream()
+				.collect(
+						groupingBy(
+								Product::getCategory, 
+								mapping(Product::getName, toList())));
+		
+		return result;
+	}
+	
+	@GetMapping("/e15")
+	public Map<String, Product> exercise15() {
+		//Get the most expensive product by category 
+		
+		Map<String, Product> mostExpensiveProduct = service.findAllProduct()
+				.stream()
+				.collect(
+						groupingBy(
+								Product::getCategory, 
+								collectingAndThen(
+										maxBy(
+											Comparator.comparingDouble(Product::getPrice)), 
+										    Optional::get)));
+		
+		return mostExpensiveProduct;
 	}
 	
 }
